@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub User Explorer | Neobrutalism Design</title>
+ 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+   
+        :root {
+            --bg-color: #FFFDF5;
+            --primary: #8B5CF6;
+            --accent: #FFD43B;  
+            --secondary: #FF6B6B; 
+            --text: #1a1a1a;
+            --border-width: 3px;
+            --shadow-offset: 5px;
+            --font-main: 'Space Grotesk', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text);
+            padding: 2rem;
+            line-height: 1.5;
+            /* Dot grid background pattern */
+            background-image: radial-gradient(#000 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .neo-box {
+            background: white;
+            border: var(--border-width) solid black;
+            box-shadow: var(--shadow-offset) var(--shadow-offset) 0px 0px black;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .neo-button {
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .neo-button:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: calc(var(--shadow-offset) + 2px) calc(var(--shadow-offset) + 2px) 0px 0px black;
+        }
+
+        .neo-button:active {
+            transform: translate(var(--shadow-offset), var(--shadow-offset));
+            box-shadow: 0px 0px 0px 0px black;
+        }
+
+        /* --- HEADER --- */
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin-bottom: 0.5rem;
+            background: var(--accent);
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border: var(--border-width) solid black;
+            box-shadow: var(--shadow-offset) var(--shadow-offset) 0px 0px black;
+        }
+
+        /* --- SEARCH SECTION --- */
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 1rem;
+            font-family: var(--font-main);
+            font-size: 1.1rem;
+            outline: none;
+            min-width: 250px;
+        }
+
+        input[type="text"]:focus {
+            background-color: #f0f0f0;
+        }
+
+        .btn-search {
+            background-color: var(--primary);
+            color: white;
+            min-width: 120px;
+        }
+        
+        /* New Clear Button Style */
+        .btn-clear {
+            background-color: var(--secondary); /* Red/Pink */
+            color: white;
+            min-width: 100px;
+        }
+
+        /* --- ERROR STATE --- */
+        #error-msg {
+            display: none; /* Hidden by default */
+            background-color: var(--secondary);
+            color: white;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* --- PROFILE SECTION --- */
+        #profile-section {
+            display: none; /* Hidden until loaded */
+            margin-bottom: 3rem;
+        }
+
+        .profile-card {
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .profile-card {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border: var(--border-width) solid black;
+            /* Sharp corners for Brutalism */
+            object-fit: cover;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.2rem;
+        }
+
+        .profile-username {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 1rem;
+            font-family: monospace;
+        }
+
+        .profile-username a {
+            color: black;
+            text-decoration: none;
+            background: var(--accent);
+            padding: 0 4px;
+        }
+
+        .profile-bio {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: #fff;
+            border: 2px solid black;
+            padding: 0.5rem 1rem;
+            font-weight: bold;
+            box-shadow: 2px 2px 0 black;
+        }
+
+        /* --- REPOSITORIES SECTION --- */
+        #repo-section {
+            display: none; /* Hidden until loaded */
+        }
+
+        h2.section-title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-decoration: underline;
+            text-decoration-thickness: 3px;
+        }
+
+        .repo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .repo-card {
+            padding: 1.5rem;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .repo-card:hover {
+            background-color: #F3F4F6;
+            transform: translate(-3px, -3px);
+            box-shadow: 8px 8px 0px 0px black;
+        }
+
+        .repo-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            word-break: break-all;
+        }
+
+        .repo-name a {
+            color: black;
+            text-decoration: none;
+        }
+        
+        .repo-name a:hover {
+            background-color: var(--accent);
+        }
+
+        .repo-desc {
+            font-size: 0.9rem;
+            color: #444;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .repo-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border-top: 2px solid black;
+            padding-top: 0.75rem;
+            margin-top: auto;
+        }
+
+        .star-count {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* --- LOADING SPINNER --- */
+        .loader {
+            display: none;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--text);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- RESPONSIVE ADJUSTMENTS --- */
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            body { padding: 1rem; }
+            .profile-card { padding: 1rem; }
+            .search-container { flex-direction: column; }
+            .btn-search, .btn-clear { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <div class="neo-box" style="display:inline-block; padding: 0;">
+                <h1>GitHub User Explorer</h1>
+            </div>
+            <p style="margin-top: 1rem; font-weight: bold;">Browse profiles in style.</p>
+        </header>
+
+        <!-- Search Section -->
+        <div class="search-container">
+            <input type="text" id="username-input" class="neo-box" placeholder="Enter GitHub Username (e.g., octocat)">
+            <button id="search-btn" class="neo-box neo-button btn-search">Search</button>
+            <button id="clear-btn" class="neo-box neo-button btn-clear">Clear</button>
+        </div>
+
+        <!-- Error Container -->
+        <div id="error-msg" class="neo-box"></div>
+
+        <!-- Loader -->
+        <div id="loader" class="loader"></div>
+
+        <!-- Main Content Wrapper -->
+        <div id="main-content">
+            
+            <!-- Profile Display -->
+            <section id="profile-section">
+                <div class="neo-box profile-card">
+                    <img src="" alt="Avatar" id="user-avatar" class="avatar">
+                    <div class="profile-info">
+                        <div id="user-name" class="profile-name"></div>
+                        <div class="profile-username">@<a href="#" id="user-link" target="_blank"></a></div>
+                        <p id="user-bio" class="profile-bio"></p>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-badge">📍 <span id="user-location"></span></div>
+                            <div class="stat-badge">👥 Followers: <span id="user-followers"></span></div>
+                            <div class="stat-badge">👣 Following: <span id="user-following"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Repositories Display -->
+            <section id="repo-section">
+                <h2 class="section-title">Public Repositories</h2>
+                <div id="repo-grid" class="repo-grid">
+                    <!-- Repo cards injected here -->
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script>
+        // --- DOM ELEMENTS ---
+        const searchBtn = document.getElementById('search-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const usernameInput = document.getElementById('username-input');
+        const errorMsg = document.getElementById('error-msg');
+        const loader = document.getElementById('loader');
+        
+        const profileSection = document.getElementById('profile-section');
+        const repoSection = document.getElementById('repo-section');
+        const repoGrid = document.getElementById('repo-grid');
+
+        // Profile Elements
+        const avatar = document.getElementById('user-avatar');
+        const nameEl = document.getElementById('user-name');
+        const linkEl = document.getElementById('user-link');
+        const bioEl = document.getElementById('user-bio');
+        const locEl = document.getElementById('user-location');
+        const followersEl = document.getElementById('user-followers');
+        const followingEl = document.getElementById('user-following');
+
+        // --- EVENT LISTENERS ---
+        searchBtn.addEventListener('click', handleSearch);
+        
+        usernameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSearch();
+        });
+
+        clearBtn.addEventListener('click', () => {
+            usernameInput.value = ''; // Clear text
+            resetUI(); // Hide results
+            usernameInput.focus(); // Focus back to input for better UX
+        });
+
+        // --- CORE LOGIC ---
+        async function handleSearch() {
+            const username = usernameInput.value.trim();
+
+            // 1. Validation
+            if (!username) {
+                showError("Please enter a username first!");
+                return;
+            }
+
+            // 2. Reset UI
+            resetUI();
+            loader.style.display = "block";
+
+            try {
+                // 3. Fetch User Data
+                const userResponse = await fetch(`https://api.github.com/users/${username}`);
+                
+                if (!userResponse.ok) {
+                    throw new Error(userResponse.status === 404 ? "User not found!" : "Something went wrong.");
+                }
+
+                const userData = await userResponse.json();
+
+                // 4. Fetch Repos Data
+                const reposResponse = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
+                const reposData = await reposResponse.json();
+
+                // 5. Render Data
+                renderProfile(userData);
+                renderRepos(reposData);
+
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                loader.style.display = "none";
+            }
+        }
+
+        function renderProfile(user) {
+            // Populate HTML elements
+            avatar.src = user.avatar_url;
+            nameEl.textContent = user.name || user.login; // Fallback if name is null
+            linkEl.textContent = user.login;
+            linkEl.href = user.html_url;
+            bioEl.textContent = user.bio || "This user prefers to stay mysterious (No bio available).";
+            locEl.textContent = user.location || "Earth";
+            followersEl.textContent = user.followers;
+            followingEl.textContent = user.following;
+
+            // Show section
+            profileSection.style.display = "block";
+        }
+
+        function renderRepos(repos) {
+            repoGrid.innerHTML = ""; // Clear previous
+
+            if (repos.length === 0) {
+                repoGrid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; font-weight:bold;">No public repositories found.</p>`;
+            } else {
+                // Sort by stars desc (optional polish)
+                repos.sort((a, b) => b.stargazers_count - a.stargazers_count);
+
+                repos.forEach(repo => {
+                    const card = document.createElement('div');
+                    card.className = 'neo-box repo-card';
+
+                    const description = repo.description 
+                        ? (repo.description.length > 80 ? repo.description.substring(0, 80) + "..." : repo.description) 
+                        : "No description provided.";
+
+                    card.innerHTML = `
+                        <div>
+                            <div class="repo-name">
+                                <a href="${repo.html_url}" target="_blank">${repo.name}</a>
+                            </div>
+                            <p class="repo-desc">${description}</p>
+                        </div>
+                        <div class="repo-meta">
+                            <span class="star-count">★ ${repo.stargazers_count}</span>
+                            <span>${repo.language || 'N/A'}</span>
+                        </div>
+                    `;
+                    repoGrid.appendChild(card);
+                });
+            }
+
+            // Show section
+            repoSection.style.display = "block";
+        }
+
+        // --- UTILITY FUNCTIONS ---
+        function showError(message) {
+            errorMsg.textContent = message;
+            errorMsg.style.display = "block";
+            
+            // Shake animation for fun
+            errorMsg.animate([
+                { transform: 'translateX(0)' },
+                { transform: 'translateX(-10px)' },
+                { transform: 'translateX(10px)' },
+                { transform: 'translateX(0)' }
+            ], {
+                duration: 300
+            });
+        }
+
+        function resetUI() {
+            errorMsg.style.display = "none";
+            profileSection.style.display = "none";
+            repoSection.style.display = "none";
+            repoGrid.innerHTML = "";
+        }
+    </script>
+</body>
+</html>
